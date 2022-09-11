@@ -1,1 +1,1 @@
-# artificialneuralnetworks
+# 60_days_challenge
