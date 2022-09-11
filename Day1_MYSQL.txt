@@ -1,0 +1,459 @@
+SELECT 
+	last_name, 
+    first_name, 
+    points, 
+    points + 10 * 100,
+    (points + 10) * 100 AS 'discount factor'
+FROM customers;
+
+
+SELECT DISTINCT state 
+FROM customers;
+
+SELECT name, unit_price, unit_price * 1.1 AS 'new price' FROM products;
+
+
+
+SELECT * 
+FROM customers
+WHERE points > 3000;
+
+
+
+SELECT * 
+FROM Customers
+WHERE state = 'VA';
+
+SELECT * 
+FROM Customers
+WHERE state <> 'VA';
+
+
+SELECT * 
+FROM Customers
+WHERE birth_date > '1990-01-01';
+
+
+-- Get the orders placed this year
+
+
+SELECT *
+FROM orders
+WHERE order_date >= '2019-01-01';
+
+
+SELECT * 
+FROM Customers
+WHERE birth_date > '1990-01-01' AND points > 1000;
+
+
+SELECT * 
+FROM Customers
+WHERE birth_date > '1990-01-01' OR points > 1000;
+
+
+
+SELECT * 
+FROM Customers
+WHERE birth_date > '1990-01-01' OR 
+		(points > 1000 AND state = 'VA');
+        
+SELECT * 
+FROM Customers
+WHERE NOT (birth_date > '1990-01-01' OR points > 1000);
+
+SELECT * 
+FROM Customers
+WHERE  (birth_date <= '1990-01-01' AND points < 1000);
+
+
+-- From the order_items table, get the items 
+-- for order #6
+-- where thr total price grater than 30
+
+
+SELECT *
+FROM order_items
+WHERE order_id = 6 AND (quantity * unit_price) > 30;
+
+
+
+SELECT * 
+FROM customers
+WHERE state IN ('VA','FL','GA');
+
+
+-- Return products with
+-- quantity in stock equal to 49, 38, 72
+
+SELECT * 
+FROM products
+WHERE quantity_in_stock IN (49,38,72);
+
+
+SELECT * 
+FROM customers
+WHERE points BETWEEN 1000 AND 3000;
+
+
+SELECT * 
+FROM customers
+WHERE birth_date BETWEEN '1990-01-01' AND '2000-01-01';
+
+
+SELECT * 
+FROM customers
+WHERE last_name LIKE 'b____Y'; -- % any number of characters, _ indicates single character
+
+
+-- GET the customers whose addresses conatin TRAIL or AVENUE, phone number end with 9
+
+SELECT *
+FROM customers
+WHERE address LIKE '%TRAIL%' OR 
+address LIKE '%AVENUE%' ;
+
+SELECT *
+FROM customers
+WHERE phone NOT LIKE '%9';
+
+
+--  REGEXP  WHERE last_name REGEXP 'field'
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'field';
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'field$';
+
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'field|mac';
+
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'field|mac|rose';
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'field$|mac|rose';
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP '[gim]e'; -- ge or ie or me
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'e[fmq]'; -- ef or em or eq
+
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP '[a-h]e';
+
+
+-- ^ beginning
+-- $ end
+-- | logical or
+-- [abcd]
+-- [a-f]alter
+
+-- Excersies
+
+-- Get the customers whose
+	-- first names are ELKA or AMBUR
+
+SELECT * 
+FROM customers
+WHERE first_name REGEXP 'ELKA|AMBUR';
+
+-- last names end with EY or ON
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'EY$|ON$';
+
+-- last names start with MY or contains SE
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP '^MY|SE';
+
+-- last names conatin B followed by R or uninstall
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'B[R,U]';
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'B[RU]';
+
+
+-- NULL Operator
+
+SELECT * 
+FROM customers
+WHERE phone IS NULL;
+
+
+SELECT * 
+FROM customers
+WHERE phone IS NOT NULL;
+
+
+-- Excercise
+
+-- Get the orders that are not shipped
+
+SELECT * 
+FROM orders
+WHERE shipper_id IS NULL;
+
+
+SELECT * 
+FROM customers
+WHERE last_name REGEXP 'B[R,U]';
+
+-- ORDER BY
+
+SELECT * 
+FROM customers
+ORDER BY FIRST_NAME;
+
+
+SELECT * 
+FROM customers
+ORDER BY FIRST_NAME DESC;
+
+
+SELECT * 
+FROM customers
+ORDER BY state DESC, first_name DESC;
+
+
+SELECT first_name, last_name, 10 AS points
+FROM customers
+ORDER BY birth_date;
+
+SELECT first_name, last_name, 10 AS points
+FROM customers
+ORDER BY 1,2;
+
+-- Excercise
+
+SELECT order_id, product_id, quantity, unit_price
+FROM order_items
+WHERE order_id = 2
+ORDER BY quantity * unit_price DESC ;
+
+
+SELECT *, quantity * unit_price As total_price
+FROM order_items
+WHERE order_id = 2
+ORDER BY quantity * unit_price DESC ;
+
+
+-- LIMIT
+
+SELECT * 
+FROM customers
+LIMIT 3;
+-- Page 1: 1, 2, 3
+-- Page 2: 4 -6
+-- Page 3: 7 - 9
+
+SELECT * 
+FROM customers
+LIMIT 6, 3;
+
+SELECT * 
+FROM customers
+ORDER BY points DESC
+LIMIT 3;
+
+
+-- Inner join
+
+SELECT * FROM sql_store.orders;
+
+
+SELECT *
+FROM orders
+INNER JOIN customers 
+				ON orders.Customer_id = customers.customer_id;
+                
+                
+                
+                
+SELECT order_id, first_name, last_name, orders.customer_id
+FROM orders
+INNER JOIN customers 
+				ON orders.Customer_id = customers.customer_id;
+                
+
+SELECT order_id, first_name, last_name, O.customer_id
+FROM orders O
+INNER JOIN customers C
+				ON O.Customer_id = C.customer_id;                
+
+
+SELECT order_id, O.product_id, P.name, quantity, O.unit_price
+FROM order_items O 
+INNER JOIN products P 
+			ON O.product_id = P.product_id;
+            
+            
+-- Joining across Databases
+
+USE sql_store;
+
+SELECT * 
+FROM order_items oi
+JOIN sql_inventory.products p
+			ON oi.product_id = p.product_id;
+            
+            
+-- SELF JOins
+USE sql_hr;
+SELECT e.employee_id,
+m.first_name AS manager
+FROM employees e
+JOIN employees m
+	ON e.reports_to = m.employee_id;
+    
+    
+-- HOW to join more than 2 tables
+
+-- JOin orders table with customer table & order_status
+
+USE sql_store;
+
+SELECT *
+FROM orders o 
+JOIN customers c 
+	ON o.customer_id = c.customer_id
+JOIN order_statuses os
+	ON os.order_status_id = o.status;
+    
+-- Excercise
+
+USE sql_invoicing;
+
+SELECT p.date, p.amount,p.invoice_id,c.name,pm.name
+FROM payments p
+JOIN payment_methods pm
+	ON p.payment_method = pm.payment_method_id
+JOIN clients c
+	ON c.client_id = p.client_id;
+
+-- COMPOUND Join Conditions
+-- Composite primary key
+
+USE sql_store;
+
+SELECT *
+FROM order_items oi
+JOIN order_item_notes oin
+		ON oi.order_id = oin.order_id
+        AND oi.product_id = oin.product_id;
+        
+
+-- Implicit JOin syntax
+
+SELECT *
+FROM orders o
+JOIN customers c 
+		ON o.customer_id = c.customer_id;
+        
+SELECT *
+FROM orders o, customers c
+WHERE o.customer_id = c.customer_id;
+
+-- Outer joins
+
+-- JOIN -> INNER join
+
+SELECT o.order_id, c.customer_id,c.first_name
+FROM customers c
+LEFT JOIN orders o
+		ON c.customer_id = o.customer_id
+ORDER BY c.customer_id;
+
+
+SELECT o.order_id, c.customer_id,c.first_name
+FROM customers c
+RIGHT JOIN orders o
+		ON c.customer_id = o.customer_id
+ORDER BY c.customer_id;
+
+-- Excercise
+SELECT p.product_id, p.name, o.quantity
+FROM products p 
+LEFT JOIN order_items o
+	ON p.product_id = o.product_id;
+    
+    
+-- OUTER JOIN WITH MULTIPLE TABLES
+
+-- Always use left joins
+
+SELECT o.order_id, c.customer_id,c.first_name, sh.name AS Shipper
+FROM customers c
+LEFT JOIN orders o
+		ON c.customer_id = o.customer_id
+LEFT JOIN shippers sh
+	ON o.shipper_id = sh.shipper_id
+ORDER BY c.customer_id;
+
+-- Excerscise
+SELECT o.order_date,o.order_id,  c.first_name AS customer, sh.name AS Shipper,os.name AS status
+FROM orders o
+LEFT JOIN customers c
+		ON c.customer_id = o.customer_id
+LEFT JOIN shippers sh
+	ON o.shipper_id = sh.shipper_id
+LEFT JOIN order_statuses os
+	ON os.order_status_id = o.status
+ORDER BY o.order_date DESC;
+
+-- SELF OUTER JOINS
+USE sql_hr;
+
+SELECT
+	e.employee_id,
+    e.first_name,
+    m.first_name AS manager
+FROM employees e
+LEFT JOIN employees m
+		ON e.reports_to = m.employee_id;
+        
+	-- USING Clause -> when two tables have same column name -> use it while joining them
+USE sql_store;
+SELECT 
+	o.order_id,
+    c.first_name,
+    sh.name AS shipper
+FROM orders o 
+JOIN customers c 
+		USING (customer_id)
+LEFT JOIN shippers sh
+		USING (shipper_id);
+        
+SELECT *
+FROM order_items oi
+JOIN order_item_notes oin
+	USING (order_id,product_id);
+    
+-- Excercise
+USE sql_invoicing;
+
+SELECT *
+FROM payments p 
+LEFT JOIN clients c
+	USING(client_id)
+LEFT JOIN 
