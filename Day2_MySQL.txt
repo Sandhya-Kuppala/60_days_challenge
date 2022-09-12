@@ -1,0 +1,249 @@
+        
+	-- USING Clause -> when two tables have same column name -> use it while joining them
+USE sql_store;
+SELECT 
+	o.order_id,
+    c.first_name,
+    sh.name AS shipper
+FROM orders o 
+JOIN customers c 
+		USING (customer_id)
+LEFT JOIN shippers sh
+		USING (shipper_id);
+        
+SELECT *
+FROM order_items oi
+JOIN order_item_notes oin
+	USING (order_id,product_id);
+    
+-- Excercise
+USE sql_invoicing;
+
+SELECT p.date,c.name AS client,p.amount,pm.name
+FROM payments p 
+LEFT JOIN clients c
+	USING(client_id)
+LEFT JOIN payment_methods pm
+	ON pm.payment_method_id = p.payment_method;
+
+-- Natural Joins
+USE sql_store;
+SELECT 
+	o.order_id,
+    c.first_name
+FROM orders o
+NATURAL JOIN customers c;
+
+
+-- CROSS JOIN
+-- Explicit syntax
+
+SELECT 
+	c.first_name AS customer,
+    p.name as product
+FROM customers c 
+CROSS JOIN products p
+ORDER BY c.first_name;
+
+-- Implicit
+
+SELECT 
+	c.first_name AS customer,
+    p.name as product
+FROM customers c, products p
+ORDER BY c.first_name;
+
+-- DO a cross join between shippers and products 
+-- using the implicit syntax and explicit synatx
+
+-- Implicit
+SELECT *
+FROM shippers, products;
+
+-- Explicit
+SELECT *
+FROM shippers s 
+CROSS JOIN products p;
+
+-- Unions -> to combine multiple queries
+
+SELECT order_id,order_date,'Active' AS status
+FROM orders
+WHERE order_date >= '2019-01-01'
+UNION
+SELECT order_id,order_date,'Archived' AS status
+FROM orders
+WHERE order_date < '2019-01-01';
+
+
+SELECT first_name
+FROM customers
+UNION
+SELECT name FROM shippers;
+
+SELECT name FROM shippers
+UNION
+SELECT first_name FROM customers;
+
+
+-- Excercise
+
+SELECT customer_id, first_name, points, 'Bronze' AS type
+FROM customers
+WHERE points < 2000
+UNION
+SELECT customer_id, first_name, points, 'Silver' AS type
+FROM customers
+WHERE points BETWEEN 2000 AND 3000
+UNION
+SELECT customer_id, first_name, points, 'Gold' AS type
+FROM customers
+WHERE points > 3000
+ORDER BY first_name;
+
+
+-- Column atrribute
+
+-- AI -> AUto increment
+
+
+-- Inserting a Single a row
+
+INSERT INTO customers
+VALUES (DEFAULT, 'John' , 'SMith', '1990-01-01', 
+		NULL,
+        'address','city','CA',DEFAULT);
+
+INSERT INTO customers 
+			(first_name,
+			last_name,
+            birth_date,
+            address,
+            city,
+            state)
+VALUES ( 'John' , 
+		'SMith', 
+        '1990-01-01', 
+		NULL,
+        'address',
+        'city',
+        'CA',
+        DEFAULT);
+
+        
+-- Inserting Multiple rows
+
+INSERT INTO shippers (name)
+VALUES ('shipper1'),
+		('shipper2'),
+        ('shipper3');
+        
+-- Excercise 
+-- Insert 3 rows into product table
+
+INSERT INTO products
+VALUES (DEFAULT,'name',70,5.6),
+		(DEFAULT,'name',80,6.6),
+        (DEFAULT,'name',90,7.6);
+
+
+
+-- Inserting Hierarical rows
+
+INSERT INTO orders (customer_id,order_date,status)
+VALUES (1,'2019-01-02',1);
+
+INSERT INTO order_items VALUES ( LAST_INSERT_ID(), 1, 1, 2.95),
+								( LAST_INSERT_ID(), 2, 1, 2.95);
+
+
+
+-- Creating a copy of table
+
+CREATE TABLE orders_archived AS SELECT * from orders;
+
+INSERT INTO orders_archived
+SELECT * FROM orders
+WHERE order_date < '2019-01-01';
+
+
+-- Excercise
+
+-- Create a table called invoices_archived 
+
+USE sql_invoicing;
+
+CREATE  TABLE invoices_archived AS 
+
+SELECT i.invoice_id,
+		i.number,
+        c.name AS client,
+        i.invoice_total,
+        i.payment_total,
+        i.invoice_date,
+        i.payment_date,
+        i.due_date
+FROM invoices i 
+JOIN clients c USING (client_id)
+WHERE payment_date IS NOT NULL;
+
+
+-- Updating a single row'
+
+UPDATE invoices
+SET payment_total = 10, payment_date = '2019-03-01' 
+WHERE invoice_id = 1;
+
+UPDATE invoices
+SET payment_total = invoice_total * 0.5, payment_date = due_date 
+WHERE invoice_id = 3;
+
+
+-- Updating multiple rows 
+-- restriction in mysql workbench
+
+UPDATE invoices
+SET payment_total = invoice_total * 0.5, payment_date = due_date 
+WHERE client_id IN (3,4);
+
+
+-- Excercise
+
+-- Write a SQL statement to give any customers born before 1990 50 extra points
+USE sql_store;
+UPDATE customers
+SET points = points + 50
+WHERE birth_date < '1990-01-01';
+
+
+-- Sub queries
+
+UPDATE invoices
+SET payment_total = invoice_total * 0.5, payment_date = due_date 
+WHERE client_id = 
+
+(
+SELECT client_id
+FROM clients
+WHERE name = 'Myworks');
+
+-- Excercise
+USE sql_store;
+UPDATE orders
+SET comments = 'Gold customer'
+WHERE customer_id IN (
+SELECT customer_id FROM customers
+WHERE points > 3000);
+
+-- Deleting rows
+USE sql_invoicing;
+DELETE FROM invoices
+WHERE client_id = (
+
+SELECT client_id
+FROM clients
+WHERE name = 'Myworks');
+
+-- Retoring the database
+
+
