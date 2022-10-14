@@ -1,1 +1,1 @@
-# 60_days_challenge
+# Python code
